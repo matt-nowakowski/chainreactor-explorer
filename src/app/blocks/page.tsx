@@ -3,14 +3,22 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { truncateHash, truncateAddress } from "@/lib/utils";
-import { Badge } from "@/components/badge";
-import { Pagination } from "@/components/pagination";
+import { Pagination, PagePagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
 import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { BlockSummary } from "@/lib/types";
 
 const PAGE_SIZE = 20;
+
+interface IndexedBlock {
+  number: number;
+  hash: string;
+  author: string | null;
+  extrinsic_count: number;
+  event_count: number;
+  timestamp: number | null;
+}
 
 export default function BlocksPage() {
   const [blocks, setBlocks] = useState<BlockSummary[]>([]);
@@ -19,11 +27,53 @@ export default function BlocksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPage = useCallback(async (endBlock?: number) => {
+  // Indexed mode state
+  const [useIndexer, setUseIndexer] = useState<boolean | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  // Detect indexer on mount
+  useEffect(() => {
+    fetch("/api/indexer/status")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => setUseIndexer(data && !data.error))
+      .catch(() => setUseIndexer(false));
+  }, []);
+
+  // Indexed fetch
+  const fetchIndexedPage = useCallback(async (p: number) => {
     setLoading(true);
     setError(null);
     try {
-      // If no endBlock, fetch the latest head first
+      const res = await fetch(`/api/indexer/blocks?limit=${PAGE_SIZE}&page=${p}`);
+      if (!res.ok) throw new Error("Failed to fetch blocks");
+      const data = await res.json();
+      setBlocks(
+        (data.blocks as IndexedBlock[]).map((b) => ({
+          number: b.number,
+          hash: b.hash,
+          parentHash: "",
+          extrinsicCount: b.extrinsic_count,
+          eventCount: b.event_count,
+          timestamp: b.timestamp,
+          authorId: b.author,
+          finalized: true,
+        }))
+      );
+      setTotal(data.total);
+      setPage(p);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Sidecar fetch (fallback)
+  const fetchSidecarPage = useCallback(async (endBlock?: number) => {
+    setLoading(true);
+    setError(null);
+    try {
       let to = endBlock;
       if (to === undefined) {
         const statsRes = await fetch("/api/stats");
@@ -50,24 +100,35 @@ export default function BlocksPage() {
     }
   }, []);
 
+  // Initial load
   useEffect(() => {
-    fetchPage();
-  }, [fetchPage]);
+    if (useIndexer === null) return;
+    if (useIndexer) {
+      fetchIndexedPage(1);
+    } else {
+      fetchSidecarPage();
+    }
+  }, [useIndexer, fetchIndexedPage, fetchSidecarPage]);
 
   const hasNewer = pageEnd !== null && headHeight !== null && pageEnd < headHeight;
   const hasOlder = pageEnd !== null && pageEnd - PAGE_SIZE >= 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-semibold tracking-tight">Blocks</h1>
         <p className="text-xs text-muted-foreground">
-          {headHeight !== null ? `Latest: #${headHeight.toLocaleString()}` : "Loading..."}
+          {useIndexer && total > 0
+            ? `${total.toLocaleString()} indexed blocks`
+            : headHeight !== null
+            ? `Latest: #${headHeight.toLocaleString()}`
+            : "Loading..."}
         </p>
       </div>
 
       {error ? (
-        <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
+        <ErrorState message={error} onRetry={() => useIndexer ? fetchIndexedPage(page) : fetchSidecarPage(pageEnd ?? undefined)} />
       ) : loading ? (
         <SkeletonRows />
       ) : (
@@ -127,26 +188,28 @@ export default function BlocksPage() {
             </table>
           </div>
 
-          <Pagination
-            hasNewer={hasNewer}
-            hasOlder={hasOlder}
-            onNewer={() => {
-              if (pageEnd !== null) {
-                const newEnd = Math.min(pageEnd + PAGE_SIZE, headHeight!);
-                fetchPage(newEnd);
+          {useIndexer ? (
+            <PagePagination page={page} totalPages={totalPages} total={total} onPage={fetchIndexedPage} />
+          ) : (
+            <Pagination
+              hasNewer={hasNewer}
+              hasOlder={hasOlder}
+              onNewer={() => {
+                if (pageEnd !== null) {
+                  const newEnd = Math.min(pageEnd + PAGE_SIZE, headHeight!);
+                  fetchSidecarPage(newEnd);
+                }
+              }}
+              onOlder={() => {
+                if (pageEnd !== null) fetchSidecarPage(pageEnd - PAGE_SIZE);
+              }}
+              label={
+                blocks.length > 0
+                  ? `Blocks ${blocks[blocks.length - 1].number.toLocaleString()} – ${blocks[0].number.toLocaleString()}`
+                  : undefined
               }
-            }}
-            onOlder={() => {
-              if (pageEnd !== null) {
-                fetchPage(pageEnd - PAGE_SIZE);
-              }
-            }}
-            label={
-              blocks.length > 0
-                ? `Blocks ${blocks[blocks.length - 1].number.toLocaleString()} – ${blocks[0].number.toLocaleString()}`
-                : undefined
-            }
-          />
+            />
+          )}
         </>
       )}
     </div>

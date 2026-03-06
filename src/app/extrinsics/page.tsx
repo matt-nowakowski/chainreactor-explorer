@@ -4,13 +4,25 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { truncateAddress, formatMethod } from "@/lib/utils";
 import { Badge } from "@/components/badge";
-import { Pagination } from "@/components/pagination";
+import { Pagination, PagePagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
 import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { ExtrinsicSummary } from "@/lib/types";
 
 const BLOCK_WINDOW = 20;
+const PAGE_SIZE = 25;
+
+interface IndexedExtrinsic {
+  block_number: number;
+  extrinsic_index: number;
+  pallet: string;
+  method: string;
+  signer: string | null;
+  hash: string;
+  success: boolean;
+  timestamp: number | null;
+}
 
 export default function ExtrinsicsPage() {
   const [extrinsics, setExtrinsics] = useState<ExtrinsicSummary[]>([]);
@@ -19,7 +31,45 @@ export default function ExtrinsicsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPage = useCallback(async (endBlock?: number) => {
+  const [useIndexer, setUseIndexer] = useState<boolean | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/indexer/status")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => setUseIndexer(data && !data.error))
+      .catch(() => setUseIndexer(false));
+  }, []);
+
+  const fetchIndexedPage = useCallback(async (p: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/indexer/extrinsics?limit=${PAGE_SIZE}&page=${p}`);
+      if (!res.ok) throw new Error("Failed to fetch extrinsics");
+      const data = await res.json();
+      setExtrinsics(
+        (data.extrinsics as IndexedExtrinsic[]).map((e) => ({
+          blockNumber: e.block_number,
+          extrinsicIndex: e.extrinsic_index,
+          method: { pallet: e.pallet, method: e.method },
+          signer: e.signer,
+          success: e.success,
+          hash: e.hash,
+          timestamp: e.timestamp,
+        }))
+      );
+      setTotal(data.total);
+      setPage(p);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchSidecarPage = useCallback(async (endBlock?: number) => {
     setLoading(true);
     setError(null);
     try {
@@ -40,7 +90,6 @@ export default function ExtrinsicsPage() {
       if (!res.ok) throw new Error("Failed to fetch extrinsics");
 
       const data = await res.json();
-      // Sort by block number desc, then extrinsic index desc
       const sorted = (data.extrinsics as ExtrinsicSummary[]).sort((a, b) =>
         b.blockNumber !== a.blockNumber
           ? b.blockNumber - a.blockNumber
@@ -56,23 +105,28 @@ export default function ExtrinsicsPage() {
   }, []);
 
   useEffect(() => {
-    fetchPage();
-  }, [fetchPage]);
+    if (useIndexer === null) return;
+    if (useIndexer) fetchIndexedPage(1);
+    else fetchSidecarPage();
+  }, [useIndexer, fetchIndexedPage, fetchSidecarPage]);
 
   const hasNewer = pageEnd !== null && headHeight !== null && pageEnd < headHeight;
   const hasOlder = pageEnd !== null && pageEnd - BLOCK_WINDOW >= 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-semibold tracking-tight">Extrinsics</h1>
         <p className="text-xs text-muted-foreground">
-          All extrinsics from recent blocks
+          {useIndexer && total > 0
+            ? `${total.toLocaleString()} indexed extrinsics`
+            : "All extrinsics from recent blocks"}
         </p>
       </div>
 
       {error ? (
-        <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
+        <ErrorState message={error} onRetry={() => useIndexer ? fetchIndexedPage(page) : fetchSidecarPage(pageEnd ?? undefined)} />
       ) : loading ? (
         <SkeletonRows />
       ) : (
@@ -132,7 +186,7 @@ export default function ExtrinsicsPage() {
                 {extrinsics.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-xs text-muted-foreground">
-                      No extrinsics found in this block range
+                      No extrinsics found
                     </td>
                   </tr>
                 )}
@@ -140,17 +194,21 @@ export default function ExtrinsicsPage() {
             </table>
           </div>
 
-          <Pagination
-            hasNewer={hasNewer}
-            hasOlder={hasOlder}
-            onNewer={() => {
-              if (pageEnd !== null) fetchPage(Math.min(pageEnd + BLOCK_WINDOW, headHeight!));
-            }}
-            onOlder={() => {
-              if (pageEnd !== null) fetchPage(pageEnd - BLOCK_WINDOW);
-            }}
-            label={pageEnd !== null ? `Blocks ${Math.max(0, pageEnd - BLOCK_WINDOW + 1).toLocaleString()} – ${pageEnd.toLocaleString()}` : undefined}
-          />
+          {useIndexer ? (
+            <PagePagination page={page} totalPages={totalPages} total={total} onPage={fetchIndexedPage} />
+          ) : (
+            <Pagination
+              hasNewer={hasNewer}
+              hasOlder={hasOlder}
+              onNewer={() => {
+                if (pageEnd !== null) fetchSidecarPage(Math.min(pageEnd + BLOCK_WINDOW, headHeight!));
+              }}
+              onOlder={() => {
+                if (pageEnd !== null) fetchSidecarPage(pageEnd - BLOCK_WINDOW);
+              }}
+              label={pageEnd !== null ? `Blocks ${Math.max(0, pageEnd - BLOCK_WINDOW + 1).toLocaleString()} – ${pageEnd.toLocaleString()}` : undefined}
+            />
+          )}
         </>
       )}
     </div>

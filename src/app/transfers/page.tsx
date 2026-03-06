@@ -3,18 +3,28 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { truncateAddress, formatBalance } from "@/lib/utils";
-import { Badge } from "@/components/badge";
-import { Pagination } from "@/components/pagination";
+import { Pagination, PagePagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
 import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { TransferSummary } from "@/lib/types";
 
 const BLOCK_WINDOW = 30;
+const PAGE_SIZE = 25;
 
 interface RuntimeInfo {
   tokenSymbol: string;
   tokenDecimals: number;
+}
+
+interface IndexedTransfer {
+  block_number: number;
+  extrinsic_index: number;
+  from_address: string;
+  to_address: string;
+  amount: string;
+  success: boolean;
+  timestamp: number | null;
 }
 
 export default function TransfersPage() {
@@ -25,22 +35,58 @@ export default function TransfersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPage = useCallback(async (endBlock?: number) => {
+  const [useIndexer, setUseIndexer] = useState<boolean | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/indexer/status")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => setUseIndexer(data && !data.error))
+      .catch(() => setUseIndexer(false));
+  }, []);
+
+  // Fetch runtime info once
+  useEffect(() => {
+    fetch("/api/runtime")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) setRuntime({ tokenSymbol: data.tokenSymbol || "TOKEN", tokenDecimals: Number(data.tokenDecimals) || 18 });
+      })
+      .catch(() => {});
+  }, []);
+
+  const fetchIndexedPage = useCallback(async (p: number) => {
     setLoading(true);
     setError(null);
     try {
-      // Fetch runtime info for token formatting
-      if (!runtime) {
-        const runtimeRes = await fetch("/api/runtime");
-        if (runtimeRes.ok) {
-          const data = await runtimeRes.json();
-          setRuntime({
-            tokenSymbol: data.tokenSymbol || "TOKEN",
-            tokenDecimals: Number(data.tokenDecimals) || 18,
-          });
-        }
-      }
+      const res = await fetch(`/api/indexer/transfers?limit=${PAGE_SIZE}&page=${p}`);
+      if (!res.ok) throw new Error("Failed to fetch transfers");
+      const data = await res.json();
+      setTransfers(
+        (data.transfers as IndexedTransfer[]).map((t) => ({
+          blockNumber: t.block_number,
+          extrinsicIndex: t.extrinsic_index,
+          from: t.from_address,
+          to: t.to_address,
+          amount: t.amount,
+          success: t.success,
+          timestamp: t.timestamp,
+        }))
+      );
+      setTotal(data.total);
+      setPage(p);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  const fetchSidecarPage = useCallback(async (endBlock?: number) => {
+    setLoading(true);
+    setError(null);
+    try {
       let to = endBlock;
       if (to === undefined) {
         const statsRes = await fetch("/api/stats");
@@ -70,30 +116,35 @@ export default function TransfersPage() {
     } finally {
       setLoading(false);
     }
-  }, [runtime]);
+  }, []);
 
   useEffect(() => {
-    fetchPage();
+    if (useIndexer === null) return;
+    if (useIndexer) fetchIndexedPage(1);
+    else fetchSidecarPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [useIndexer]);
 
   const decimals = runtime?.tokenDecimals ?? 18;
   const symbol = runtime?.tokenSymbol ?? "TOKEN";
 
   const hasNewer = pageEnd !== null && headHeight !== null && pageEnd < headHeight;
   const hasOlder = pageEnd !== null && pageEnd - BLOCK_WINDOW >= 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-semibold tracking-tight">Transfers</h1>
         <p className="text-xs text-muted-foreground">
-          Token transfers from recent blocks
+          {useIndexer && total > 0
+            ? `${total.toLocaleString()} indexed transfers`
+            : "Token transfers from recent blocks"}
         </p>
       </div>
 
       {error ? (
-        <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
+        <ErrorState message={error} onRetry={() => useIndexer ? fetchIndexedPage(page) : fetchSidecarPage(pageEnd ?? undefined)} />
       ) : loading ? (
         <SkeletonRows />
       ) : (
@@ -153,7 +204,7 @@ export default function TransfersPage() {
                 {transfers.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-xs text-muted-foreground">
-                      No transfers found in this block range
+                      No transfers found
                     </td>
                   </tr>
                 )}
@@ -161,17 +212,21 @@ export default function TransfersPage() {
             </table>
           </div>
 
-          <Pagination
-            hasNewer={hasNewer}
-            hasOlder={hasOlder}
-            onNewer={() => {
-              if (pageEnd !== null) fetchPage(Math.min(pageEnd + BLOCK_WINDOW, headHeight!));
-            }}
-            onOlder={() => {
-              if (pageEnd !== null) fetchPage(pageEnd - BLOCK_WINDOW);
-            }}
-            label={pageEnd !== null ? `Blocks ${Math.max(0, pageEnd - BLOCK_WINDOW + 1).toLocaleString()} – ${pageEnd.toLocaleString()}` : undefined}
-          />
+          {useIndexer ? (
+            <PagePagination page={page} totalPages={totalPages} total={total} onPage={fetchIndexedPage} />
+          ) : (
+            <Pagination
+              hasNewer={hasNewer}
+              hasOlder={hasOlder}
+              onNewer={() => {
+                if (pageEnd !== null) fetchSidecarPage(Math.min(pageEnd + BLOCK_WINDOW, headHeight!));
+              }}
+              onOlder={() => {
+                if (pageEnd !== null) fetchSidecarPage(pageEnd - BLOCK_WINDOW);
+              }}
+              label={pageEnd !== null ? `Blocks ${Math.max(0, pageEnd - BLOCK_WINDOW + 1).toLocaleString()} – ${pageEnd.toLocaleString()}` : undefined}
+            />
+          )}
         </>
       )}
     </div>

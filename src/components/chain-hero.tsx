@@ -21,14 +21,33 @@ export function ChainHero() {
     fetchName();
   }, []);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const q = query.trim();
     if (!q) return;
 
-    if (/^\d+$/.test(q)) {
+    // Try indexer search first for hash lookups
+    if (/^0x[a-fA-F0-9]{64}$/.test(q)) {
+      try {
+        const res = await fetch(`/api/indexer/search?q=${encodeURIComponent(q)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.result) {
+            if (data.result.type === "block") {
+              router.push(`/blocks/${data.result.value}`);
+              setQuery("");
+              return;
+            }
+            if (data.result.type === "extrinsic") {
+              router.push(`/extrinsics/${data.result.value}`);
+              setQuery("");
+              return;
+            }
+          }
+        }
+      } catch { /* fall through to default */ }
       router.push(`/blocks/${q}`);
-    } else if (/^0x[a-fA-F0-9]{64}$/.test(q)) {
+    } else if (/^\d+$/.test(q)) {
       router.push(`/blocks/${q}`);
     } else {
       router.push(`/accounts/${q}`);
