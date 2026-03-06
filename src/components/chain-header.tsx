@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation";
 import { SearchBar } from "./search-bar";
 import { ThemeToggle } from "./theme-toggle";
 
-const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
-
 const NAV_LINKS = [
   { href: "/", label: "Dashboard" },
   { href: "/blocks", label: "Blocks" },
@@ -21,6 +19,7 @@ const NAV_LINKS = [
 interface Stats {
   blockHeight: number;
   finalizedHeight: number;
+  chainName?: string;
 }
 
 export function ChainHeader() {
@@ -39,6 +38,9 @@ export function ChainHeader() {
     return () => clearInterval(id);
   }, []);
 
+  const chainName = stats?.chainName || "Explorer";
+  const initials = chainName.slice(0, 2).toUpperCase();
+
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
@@ -51,7 +53,7 @@ export function ChainHeader() {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-              <span className="text-xs font-bold text-primary-foreground">CR</span>
+              <span className="text-xs font-bold text-primary-foreground">{initials}</span>
             </div>
             <span className="text-sm font-semibold tracking-tight">{chainName}</span>
           </Link>

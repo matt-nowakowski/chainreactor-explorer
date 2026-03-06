@@ -14,9 +14,6 @@ import {
   Globe,
 } from "lucide-react";
 
-const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
-const initials = chainName.slice(0, 2).toUpperCase();
-
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
   { href: "/blocks", label: "Blocks", icon: Box },
@@ -29,6 +26,7 @@ const NAV_ITEMS = [
 
 interface Stats {
   blockHeight: number;
+  chainName?: string;
 }
 
 export function Sidebar() {
@@ -42,7 +40,7 @@ export function Sidebar() {
         const res = await fetch("/api/stats");
         if (res.ok) {
           const data = await res.json();
-          setStats({ blockHeight: data.blockHeight });
+          setStats({ blockHeight: data.blockHeight, chainName: data.chainName });
         }
       } catch { /* ignore */ }
     }
@@ -50,6 +48,9 @@ export function Sidebar() {
     const id = setInterval(fetchStats, 6000);
     return () => clearInterval(id);
   }, []);
+
+  const chainName = stats?.chainName || "Explorer";
+  const initials = chainName.slice(0, 2).toUpperCase();
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";

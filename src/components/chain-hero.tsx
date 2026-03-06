@@ -1,13 +1,25 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-
-const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
 
 export function ChainHero() {
   const [query, setQuery] = useState("");
+  const [chainName, setChainName] = useState("Explorer");
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchName() {
+      try {
+        const res = await fetch("/api/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.chainName) setChainName(data.chainName);
+        }
+      } catch { /* ignore */ }
+    }
+    fetchName();
+  }, []);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();

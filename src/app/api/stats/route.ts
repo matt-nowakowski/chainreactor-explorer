@@ -5,6 +5,7 @@ import {
   getTotalIssuance,
   getAuthorities,
   getNodeNetwork,
+  getNodeVersion,
   getRuntimeSpec,
   getRecentBlocks,
 } from "@/lib/sidecar";
@@ -22,11 +23,12 @@ export async function GET() {
     ]);
 
     // These may fail on some chains — fetch with fallbacks
-    const [issuanceResult, authResult, networkResult, recentBlocks] =
+    const [issuanceResult, authResult, networkResult, nodeVersion, recentBlocks] =
       await Promise.all([
         getTotalIssuance().catch(() => null),
         getAuthorities().catch(() => null),
         getNodeNetwork().catch(() => null),
+        getNodeVersion().catch(() => null),
         getRecentBlocks(10).catch(() => []),
       ]);
 
@@ -47,6 +49,7 @@ export async function GET() {
       avgBlockTime: calculateAvgBlockTime(timestamps),
       specVersion: runtimeSpec.specVersion,
       specName: runtimeSpec.specName,
+      chainName: nodeVersion?.chain || runtimeSpec.specName || "Chain",
       tokenSymbol:
         runtimeSpec.properties?.tokenSymbol?.[0] ||
         process.env.NEXT_PUBLIC_TOKEN_SYMBOL ||

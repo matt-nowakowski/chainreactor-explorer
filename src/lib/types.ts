@@ -148,6 +148,7 @@ export interface NetworkStats {
   avgBlockTime: number;
   specVersion: string;
   specName: string;
+  chainName: string;
   tokenSymbol: string;
   tokenDecimals: number;
   isSyncing: boolean;

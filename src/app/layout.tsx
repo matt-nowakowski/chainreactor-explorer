@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider } from "@/components/sidebar-provider";
 import { Sidebar } from "@/components/sidebar";
 import { SidebarInset } from "@/components/sidebar-inset";
+import { getNodeVersion } from "@/lib/sidecar";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,15 +19,21 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
+export async function generateMetadata(): Promise<Metadata> {
+  let chainName = "Chain";
+  try {
+    const version = await getNodeVersion();
+    chainName = version.chain || chainName;
+  } catch { /* fallback */ }
 
-export const metadata: Metadata = {
-  title: `${chainName} Explorer`,
-  description: `Block explorer for ${chainName}`,
-  icons: {
-    icon: "/favicon.svg",
-  },
-};
+  return {
+    title: `${chainName} Explorer`,
+    description: `Block explorer for ${chainName}`,
+    icons: {
+      icon: "/favicon.svg",
+    },
+  };
+}
 
 export default function RootLayout({
   children,
