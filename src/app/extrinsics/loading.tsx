@@ -7,7 +7,7 @@ export default function ExtrinsicsLoading() {
         <Skeleton className="h-6 w-28" />
         <Skeleton className="mt-1 h-4 w-48" />
       </div>
-      <SkeletonRows rows={10} />
+      <SkeletonRows />
     </div>
   );
 }

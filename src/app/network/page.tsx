@@ -98,12 +98,11 @@ export default async function NetworkPage() {
               <>
                 <DetailRow label="Peers" value={formatNumber(network.numPeers)} />
                 <div className="flex items-start justify-between gap-4 py-1.5">
-                  <span className="shrink-0 text-xs text-muted-foreground">Syncing</span>
+                  <span className="shrink-0 text-sm text-muted-foreground">Syncing</span>
                   <Badge variant={network.isSyncing ? "warning" : "success"}>
                     {network.isSyncing ? "Syncing" : "Synced"}
                   </Badge>
                 </div>
-                <DetailRow label="Node Roles" value={network.nodeRoles.join(", ") || "—"} />
                 <DetailRow label="Peer ID" value={network.localPeerId} mono copy />
               </>
             ) : (

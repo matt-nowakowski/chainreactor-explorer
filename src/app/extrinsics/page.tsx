@@ -74,7 +74,7 @@ export default function ExtrinsicsPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonRows rows={10} />
+        <SkeletonRows />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">
@@ -116,7 +116,7 @@ export default function ExtrinsicsPage() {
                           {truncateAddress(ext.signer, 6)}
                         </Link>
                       ) : (
-                        <span className="text-[10px] text-muted-foreground">Unsigned</span>
+                        <span className="text-xs text-muted-foreground">Unsigned</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5 text-center">

@@ -85,7 +85,7 @@ export default async function ValidatorsPage() {
         </div>
       )}
 
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Aura authorities rotate per session. Session changes take effect at the next rotation boundary.
       </p>
     </div>

@@ -24,7 +24,7 @@ export function LatestFeed({ initialBlocks }: { initialBlocks: BlockSummary[] })
         <div className="rounded-lg border">
           <div className="flex items-center justify-between border-b px-4 py-2.5">
             <span className="text-xs font-semibold">Latest Blocks</span>
-            <Link href="/blocks" className="text-[11px] text-primary hover:underline">
+            <Link href="/blocks" className="text-xs text-primary hover:underline">
               View all →
             </Link>
           </div>
@@ -49,14 +49,14 @@ export function LatestFeed({ initialBlocks }: { initialBlocks: BlockSummary[] })
                     >
                       {block.number.toLocaleString()}
                     </Link>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {block.authorId ? `Author ${truncateAddress(block.authorId, 4)}` : ""}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <Timestamp ms={block.timestamp} />
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {block.extrinsicCount} exts
                   </p>
                 </div>
@@ -74,7 +74,7 @@ export function LatestFeed({ initialBlocks }: { initialBlocks: BlockSummary[] })
         <div className="rounded-lg border">
           <div className="flex items-center justify-between border-b px-4 py-2.5">
             <span className="text-xs font-semibold">Latest Extrinsics</span>
-            <Link href="/extrinsics" className="text-[11px] text-primary hover:underline">
+            <Link href="/extrinsics" className="text-xs text-primary hover:underline">
               View all →
             </Link>
           </div>
@@ -99,7 +99,7 @@ export function LatestFeed({ initialBlocks }: { initialBlocks: BlockSummary[] })
                       {ext.signer && (
                         <Link
                           href={`/accounts/${ext.signer}`}
-                          className="text-[11px] font-mono text-muted-foreground hover:text-foreground"
+                          className="text-xs font-mono text-muted-foreground hover:text-foreground"
                         >
                           {truncateAddress(ext.signer, 4)}
                         </Link>

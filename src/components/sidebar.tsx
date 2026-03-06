@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "./sidebar-provider";
-import { useTheme } from "./theme-provider";
 import {
   Home,
   Box,
@@ -13,8 +12,6 @@ import {
   ArrowRightLeft,
   Shield,
   Globe,
-  Moon,
-  Sun,
 } from "lucide-react";
 
 const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
@@ -37,7 +34,6 @@ interface Stats {
 export function Sidebar() {
   const { open } = useSidebar();
   const pathname = usePathname();
-  const { resolvedTheme, setTheme } = useTheme();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
@@ -86,7 +82,7 @@ export function Sidebar() {
               href={item.href}
               className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
                 active
-                  ? "bg-sidebar-accent text-primary font-medium"
+                  ? "bg-sidebar-accent text-foreground font-medium"
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
               }`}
             >
@@ -98,7 +94,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="px-5 pb-5 space-y-3">
+      <div className="px-5 pb-5">
         {stats && (
           <div className="flex items-center gap-2 text-xs text-sidebar-foreground/60">
             <div className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -108,17 +104,6 @@ export function Sidebar() {
             </span>
           </div>
         )}
-        <button
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-accent transition-colors hover:bg-sidebar-accent/80"
-          title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
-        >
-          {resolvedTheme === "dark" ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
-        </button>
       </div>
     </aside>
   );

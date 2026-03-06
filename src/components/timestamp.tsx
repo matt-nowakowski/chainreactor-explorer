@@ -12,11 +12,11 @@ export function Timestamp({ ms }: { ms: number | null }) {
     return () => clearInterval(id);
   }, []);
 
-  if (!ms) return <span className="text-xs text-muted-foreground">—</span>;
+  if (!ms) return <span className="text-sm text-muted-foreground">—</span>;
 
   return (
     <span
-      className="text-xs text-muted-foreground cursor-default"
+      className="text-sm text-muted-foreground cursor-default"
       title={formatTimestamp(ms)}
     >
       {timeAgo(ms)}

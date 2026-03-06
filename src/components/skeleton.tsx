@@ -1,7 +1,7 @@
 export function Skeleton({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <div
-      className={`animate-pulse rounded bg-muted/60 ${className}`}
+      className={`animate-pulse rounded-md bg-muted/30 ${className}`}
       style={style}
     />
   );
@@ -9,37 +9,31 @@ export function Skeleton({ className = "", style }: { className?: string; style?
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-lg border p-4 space-y-2">
-      <Skeleton className="h-3 w-16" />
-      <Skeleton className="h-6 w-24" />
+    <div className="rounded-lg p-5 space-y-3">
+      <Skeleton className="h-4 w-20" />
+      <Skeleton className="h-8 w-28" />
     </div>
   );
 }
 
 export function SkeletonBlock() {
   return (
-    <div className="space-y-3 rounded-lg border p-5">
-      {Array.from({ length: 6 }, (_, i) => (
-        <div key={i} className="flex items-center gap-3">
-          <Skeleton className="h-4 w-4 rounded" />
-          <Skeleton
-            className="h-4 flex-1"
-            style={{ maxWidth: `${40 + ((i * 17) % 45)}%` }}
-          />
-        </div>
-      ))}
+    <div className="space-y-5 rounded-lg p-6">
+      <Skeleton className="h-5 w-2/5" />
+      <Skeleton className="h-5 w-3/5" />
+      <Skeleton className="h-5 w-1/3" />
     </div>
   );
 }
 
-export function SkeletonRows({ rows = 8 }: { rows?: number }) {
+export function SkeletonRows({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="space-y-2.5 rounded-lg border p-5">
+    <div className="space-y-4 rounded-lg py-6 px-2">
       {Array.from({ length: rows }, (_, i) => (
         <Skeleton
           key={i}
-          className="h-4"
-          style={{ maxWidth: `${55 + ((i * 13) % 40)}%` }}
+          className="h-6 rounded-lg"
+          style={{ maxWidth: `${45 + ((i * 19) % 40)}%` }}
         />
       ))}
     </div>
@@ -48,22 +42,10 @@ export function SkeletonRows({ rows = 8 }: { rows?: number }) {
 
 /** @deprecated Use SkeletonRows or SkeletonBlock instead */
 export function SkeletonTable({ rows }: { rows: number; cols?: number }) {
-  return <SkeletonRows rows={rows} />;
+  return <SkeletonRows rows={Math.min(rows, 5)} />;
 }
 
 /** @deprecated Use SkeletonBlock instead */
 export function SkeletonDetail({ rows }: { rows: number }) {
-  return (
-    <div className="space-y-3 rounded-lg border p-5">
-      {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex items-center justify-between gap-4">
-          <Skeleton className="h-3.5 w-20" />
-          <Skeleton
-            className="h-3.5"
-            style={{ width: `${30 + ((i * 19) % 35)}%` }}
-          />
-        </div>
-      ))}
-    </div>
-  );
+  return <SkeletonBlock />;
 }

@@ -80,7 +80,7 @@ export default async function AccountPage({
         />
         {isValidator && (
           <div className="flex items-start justify-between gap-4 py-1.5">
-            <span className="shrink-0 text-xs text-muted-foreground">Role</span>
+            <span className="shrink-0 text-sm text-muted-foreground">Role</span>
             <Badge variant="primary">Active Validator</Badge>
           </div>
         )}
@@ -109,7 +109,7 @@ function BalanceCard({
 }) {
   return (
     <div className="rounded-md border bg-muted/20 px-4 py-3">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-0.5 font-mono text-sm font-medium tabular-nums">
         {formatBalance(value, decimals)} <span className="text-xs text-muted-foreground">{symbol}</span>
       </p>

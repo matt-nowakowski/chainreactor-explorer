@@ -63,14 +63,14 @@ export default async function BlockPage({
             {blockNum > 0 && (
               <Link
                 href={`/blocks/${blockNum - 1}`}
-                className="rounded-md border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted"
+                className="rounded-md border px-2.5 py-1 text-sm font-medium transition-colors hover:bg-muted"
               >
                 ← {(blockNum - 1).toLocaleString()}
               </Link>
             )}
             <Link
               href={`/blocks/${blockNum + 1}`}
-              className="rounded-md border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted"
+              className="rounded-md border px-2.5 py-1 text-sm font-medium transition-colors hover:bg-muted"
             >
               {(blockNum + 1).toLocaleString()} →
             </Link>

@@ -95,7 +95,7 @@ export default function TransfersPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonRows rows={8} />
+        <SkeletonRows />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">

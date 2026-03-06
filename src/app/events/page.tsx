@@ -80,7 +80,7 @@ export default function EventsPage() {
         </div>
         <button
           onClick={() => setShowSystem(!showSystem)}
-          className="rounded-md border px-2.5 py-1 text-[10px] font-medium transition-colors hover:bg-muted"
+          className="rounded-md border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted"
         >
           {showSystem ? "Hide" : "Show"} system events
         </button>
@@ -89,7 +89,7 @@ export default function EventsPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonRows rows={10} />
+        <SkeletonRows />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">

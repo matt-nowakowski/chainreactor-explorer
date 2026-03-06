@@ -69,7 +69,7 @@ export default function BlocksPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonRows rows={10} />
+        <SkeletonRows />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">

@@ -7,7 +7,7 @@ export default function EventsLoading() {
         <Skeleton className="h-6 w-20" />
         <Skeleton className="mt-1 h-4 w-40" />
       </div>
-      <SkeletonRows rows={10} />
+      <SkeletonRows />
     </div>
   );
 }

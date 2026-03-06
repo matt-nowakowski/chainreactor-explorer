@@ -2,6 +2,7 @@
 
 import { useSidebar } from "./sidebar-provider";
 import { SidebarTrigger } from "./sidebar-trigger";
+import { ThemeToggle } from "./theme-toggle";
 
 export function SidebarInset({ children }: { children: React.ReactNode }) {
   const { open } = useSidebar();
@@ -15,8 +16,9 @@ export function SidebarInset({ children }: { children: React.ReactNode }) {
         className="flex-1 lg:m-2 lg:rounded-xl lg:shadow-sm bg-background min-h-screen lg:min-h-[calc(100vh-16px)] transition-[margin] duration-200 ease-linear"
         style={{ marginLeft: open ? 0 : 8 }}
       >
-        <div className="hidden lg:flex items-center gap-2 px-6 pt-4">
+        <div className="hidden lg:flex items-center justify-between px-6 pt-4">
           <SidebarTrigger />
+          <ThemeToggle />
         </div>
         <div className="w-full px-8 py-6">
           {children}

@@ -7,7 +7,7 @@ export default function TransfersLoading() {
         <Skeleton className="h-6 w-24" />
         <Skeleton className="mt-1 h-4 w-44" />
       </div>
-      <SkeletonRows rows={8} />
+      <SkeletonRows />
     </div>
   );
 }

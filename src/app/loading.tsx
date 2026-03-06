@@ -4,10 +4,10 @@ export default function HomeLoading() {
   return (
     <div className="space-y-6">
       {/* Hero skeleton */}
-      <div className="rounded-xl border p-8 space-y-4">
-        <Skeleton className="h-7 w-56" />
-        <Skeleton className="h-4 w-72" />
-        <Skeleton className="mt-2 h-11 w-full max-w-xl rounded-full" />
+      <div className="rounded-xl p-8 space-y-5">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-5 w-80" />
+        <Skeleton className="mt-2 h-12 w-full max-w-xl rounded-full" />
       </div>
       {/* Stats cards skeleton */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -17,8 +17,8 @@ export default function HomeLoading() {
       </div>
       {/* Feed panels skeleton */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <SkeletonRows rows={8} />
-        <SkeletonRows rows={8} />
+        <SkeletonRows />
+        <SkeletonRows />
       </div>
     </div>
   );
