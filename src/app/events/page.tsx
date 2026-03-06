@@ -6,7 +6,7 @@ import { formatMethod } from "@/lib/utils";
 import { Badge } from "@/components/badge";
 import { Pagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
-import { SkeletonTable } from "@/components/skeleton";
+import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { EventSummary } from "@/lib/types";
 
@@ -89,7 +89,7 @@ export default function EventsPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonTable rows={15} cols={4} />
+        <SkeletonRows rows={10} />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">
@@ -111,7 +111,7 @@ export default function EventsPage() {
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/blocks/${event.blockNumber}`}
-                        className="font-mono text-xs text-primary hover:underline"
+                        className="font-mono text-sm text-primary hover:underline"
                       >
                         {event.blockNumber.toLocaleString()}
                       </Link>
@@ -120,12 +120,12 @@ export default function EventsPage() {
                       {event.extrinsicIndex !== null ? (
                         <Link
                           href={`/extrinsics/${event.blockNumber}-${event.extrinsicIndex}`}
-                          className="font-mono text-xs text-primary hover:underline"
+                          className="font-mono text-sm text-primary hover:underline"
                         >
                           {event.blockNumber}-{event.extrinsicIndex}
                         </Link>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5">
@@ -136,7 +136,7 @@ export default function EventsPage() {
                     <td className="px-4 py-2.5 hidden md:table-cell max-w-xs">
                       {event.data.length > 0 ? (
                         <details className="group">
-                          <summary className="cursor-pointer font-mono text-xs text-muted-foreground truncate max-w-[300px] hover:text-foreground">
+                          <summary className="cursor-pointer font-mono text-sm text-muted-foreground truncate max-w-[300px] hover:text-foreground">
                             {JSON.stringify(event.data).slice(0, 80)}
                             {JSON.stringify(event.data).length > 80 ? "..." : ""}
                           </summary>
@@ -145,7 +145,7 @@ export default function EventsPage() {
                           </pre>
                         </details>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>

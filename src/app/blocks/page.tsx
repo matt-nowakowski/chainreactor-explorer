@@ -6,7 +6,7 @@ import { truncateHash, truncateAddress } from "@/lib/utils";
 import { Badge } from "@/components/badge";
 import { Pagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
-import { SkeletonTable } from "@/components/skeleton";
+import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { BlockSummary } from "@/lib/types";
 
@@ -69,7 +69,7 @@ export default function BlocksPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonTable rows={PAGE_SIZE} cols={6} />
+        <SkeletonRows rows={10} />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">
@@ -90,13 +90,13 @@ export default function BlocksPage() {
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/blocks/${block.number}`}
-                        className="font-mono text-xs text-primary hover:underline font-medium"
+                        className="font-mono text-sm text-primary hover:underline font-medium"
                       >
                         {block.number.toLocaleString()}
                       </Link>
                     </td>
                     <td className="px-4 py-2.5">
-                      <span className="font-mono text-xs text-muted-foreground">
+                      <span className="font-mono text-sm text-muted-foreground">
                         {truncateHash(block.hash, 8)}
                       </span>
                     </td>
@@ -104,19 +104,19 @@ export default function BlocksPage() {
                       {block.authorId ? (
                         <Link
                           href={`/accounts/${block.authorId}`}
-                          className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                          className="font-mono text-sm text-muted-foreground hover:text-foreground"
                         >
                           {truncateAddress(block.authorId, 6)}
                         </Link>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5 text-center">
-                      <span className="text-xs">{block.extrinsicCount}</span>
+                      <span className="text-sm">{block.extrinsicCount}</span>
                     </td>
                     <td className="px-4 py-2.5 text-center hidden sm:table-cell">
-                      <span className="text-xs">{block.eventCount}</span>
+                      <span className="text-sm">{block.eventCount}</span>
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <Timestamp ms={block.timestamp} />

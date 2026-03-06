@@ -63,12 +63,12 @@ export default async function ValidatorsPage() {
               {validators.map((addr, i) => (
                 <tr key={addr} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-2.5">
-                    <span className="text-xs text-muted-foreground font-mono">{i}</span>
+                    <span className="text-sm text-muted-foreground font-mono">{i}</span>
                   </td>
                   <td className="px-4 py-2.5">
                     <Link
                       href={`/accounts/${addr}`}
-                      className="font-mono text-xs text-primary hover:underline"
+                      className="font-mono text-sm text-primary hover:underline"
                     >
                       <span className="hidden sm:inline">{addr}</span>
                       <span className="sm:hidden">{truncateAddress(addr, 8)}</span>

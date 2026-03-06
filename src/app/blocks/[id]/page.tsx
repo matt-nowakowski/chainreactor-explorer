@@ -125,12 +125,12 @@ export default async function BlockPage({
               <tbody>
                 {block.logs.map((log, i) => (
                   <tr key={i} className="border-b last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{log.index}</td>
+                    <td className="px-4 py-2 font-mono text-sm text-muted-foreground">{log.index}</td>
                     <td className="px-4 py-2">
                       <Badge variant="neutral" mono>{log.type}</Badge>
                     </td>
                     <td className="px-4 py-2 max-w-xs">
-                      <span className="font-mono text-xs text-muted-foreground truncate block max-w-[400px]">
+                      <span className="font-mono text-sm text-muted-foreground truncate block max-w-[400px]">
                         {log.value}
                       </span>
                     </td>
@@ -163,7 +163,7 @@ export default async function BlockPage({
                   <td className="px-4 py-2">
                     <Link
                       href={`/extrinsics/${blockNum}-${i}`}
-                      className="font-mono text-xs text-primary hover:underline"
+                      className="font-mono text-sm text-primary hover:underline"
                     >
                       {blockNum}-{i}
                     </Link>
@@ -177,12 +177,12 @@ export default async function BlockPage({
                     {ext.signature?.signer?.id ? (
                       <Link
                         href={`/accounts/${ext.signature.signer.id}`}
-                        className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                        className="font-mono text-sm text-muted-foreground hover:text-foreground"
                       >
                         {truncateHash(ext.signature.signer.id, 6)}
                       </Link>
                     ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
+                      <span className="text-sm text-muted-foreground">—</span>
                     )}
                   </td>
                   <td className="px-4 py-2 text-right">
@@ -213,7 +213,7 @@ export default async function BlockPage({
               <tbody>
                 {allEvents.map((event, i) => (
                   <tr key={i} className="border-b last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{i}</td>
+                    <td className="px-4 py-2 font-mono text-sm text-muted-foreground">{i}</td>
                     <td className="px-4 py-2">
                       <Badge variant="neutral" mono>
                         {formatMethod(event.method.pallet, event.method.method)}
@@ -222,7 +222,7 @@ export default async function BlockPage({
                     <td className="px-4 py-2 hidden md:table-cell max-w-xs">
                       {event.data.length > 0 ? (
                         <details className="group">
-                          <summary className="cursor-pointer font-mono text-xs text-muted-foreground truncate max-w-[300px] hover:text-foreground">
+                          <summary className="cursor-pointer font-mono text-sm text-muted-foreground truncate max-w-[300px] hover:text-foreground">
                             {JSON.stringify(event.data).slice(0, 60)}
                             {JSON.stringify(event.data).length > 60 ? "..." : ""}
                           </summary>
@@ -231,7 +231,7 @@ export default async function BlockPage({
                           </pre>
                         </details>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>

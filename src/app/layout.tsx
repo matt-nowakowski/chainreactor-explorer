@@ -9,7 +9,7 @@ import "./globals.css";
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "900"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -23,6 +23,9 @@ const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
 export const metadata: Metadata = {
   title: `${chainName} Explorer`,
   description: `Block explorer for ${chainName}`,
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

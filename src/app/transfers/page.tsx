@@ -6,7 +6,7 @@ import { truncateAddress, formatBalance } from "@/lib/utils";
 import { Badge } from "@/components/badge";
 import { Pagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
-import { SkeletonTable } from "@/components/skeleton";
+import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { TransferSummary } from "@/lib/types";
 
@@ -95,7 +95,7 @@ export default function TransfersPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonTable rows={10} cols={5} />
+        <SkeletonRows rows={8} />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">
@@ -118,7 +118,7 @@ export default function TransfersPage() {
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/blocks/${tx.blockNumber}`}
-                        className="font-mono text-xs text-primary hover:underline"
+                        className="font-mono text-sm text-primary hover:underline"
                       >
                         {tx.blockNumber.toLocaleString()}
                       </Link>
@@ -126,7 +126,7 @@ export default function TransfersPage() {
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/accounts/${tx.from}`}
-                        className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                        className="font-mono text-sm text-muted-foreground hover:text-foreground"
                       >
                         {truncateAddress(tx.from, 6)}
                       </Link>
@@ -134,13 +134,13 @@ export default function TransfersPage() {
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/accounts/${tx.to}`}
-                        className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                        className="font-mono text-sm text-muted-foreground hover:text-foreground"
                       >
                         {truncateAddress(tx.to, 6)}
                       </Link>
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      <span className="text-xs font-medium">
+                      <span className="text-sm font-medium">
                         {formatBalance(tx.amount, decimals)}{" "}
                         <span className="text-muted-foreground font-normal">{symbol}</span>
                       </span>

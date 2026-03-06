@@ -6,7 +6,7 @@ import { truncateAddress, formatMethod } from "@/lib/utils";
 import { Badge } from "@/components/badge";
 import { Pagination } from "@/components/pagination";
 import { Timestamp } from "@/components/timestamp";
-import { SkeletonTable } from "@/components/skeleton";
+import { SkeletonRows } from "@/components/skeleton";
 import { ErrorState } from "@/components/error-state";
 import type { ExtrinsicSummary } from "@/lib/types";
 
@@ -74,7 +74,7 @@ export default function ExtrinsicsPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => fetchPage(pageEnd ?? undefined)} />
       ) : loading ? (
-        <SkeletonTable rows={15} cols={5} />
+        <SkeletonRows rows={10} />
       ) : (
         <>
           <div className="overflow-x-auto rounded-lg border">
@@ -97,7 +97,7 @@ export default function ExtrinsicsPage() {
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/extrinsics/${ext.blockNumber}-${ext.extrinsicIndex}`}
-                        className="font-mono text-xs text-primary hover:underline font-medium"
+                        className="font-mono text-sm text-primary hover:underline font-medium"
                       >
                         {ext.blockNumber}-{ext.extrinsicIndex}
                       </Link>
@@ -111,7 +111,7 @@ export default function ExtrinsicsPage() {
                       {ext.signer ? (
                         <Link
                           href={`/accounts/${ext.signer}`}
-                          className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                          className="font-mono text-sm text-muted-foreground hover:text-foreground"
                         >
                           {truncateAddress(ext.signer, 6)}
                         </Link>

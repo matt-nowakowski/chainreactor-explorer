@@ -111,7 +111,7 @@ export default async function ExtrinsicPage({
               <tbody>
                 {ext.events.map((event, i) => (
                   <tr key={i} className="border-b last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{i}</td>
+                    <td className="px-4 py-2 font-mono text-sm text-muted-foreground">{i}</td>
                     <td className="px-4 py-2">
                       <Badge variant="neutral" mono>
                         {formatMethod(event.method.pallet, event.method.method)}
@@ -120,7 +120,7 @@ export default async function ExtrinsicPage({
                     <td className="px-4 py-2 hidden md:table-cell max-w-xs">
                       {event.data.length > 0 ? (
                         <details className="group">
-                          <summary className="cursor-pointer font-mono text-xs text-muted-foreground truncate max-w-[300px] hover:text-foreground">
+                          <summary className="cursor-pointer font-mono text-sm text-muted-foreground truncate max-w-[300px] hover:text-foreground">
                             {JSON.stringify(event.data).slice(0, 60)}
                             {JSON.stringify(event.data).length > 60 ? "..." : ""}
                           </summary>
@@ -129,7 +129,7 @@ export default async function ExtrinsicPage({
                           </pre>
                         </details>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>
