@@ -60,6 +60,40 @@ export interface SidecarNodeVersion {
   specVersion: string;
 }
 
+/** Sidecar runtime spec response */
+export interface SidecarRuntimeSpec {
+  at: { hash: string; height: string };
+  authoringVersion: string;
+  transactionVersion: string;
+  implVersion: string;
+  specName: string;
+  specVersion: string;
+  properties: {
+    ss58Format: string;
+    tokenDecimals: string[];
+    tokenSymbol: string[];
+  };
+}
+
+/** Sidecar node network response */
+export interface SidecarNodeNetwork {
+  nodeRoles: string[];
+  numPeers: string;
+  isSyncing: boolean;
+  shouldHavePeers: boolean;
+  localPeerId: string;
+  localListenAddresses: string[];
+}
+
+/** Sidecar generic storage item response */
+export interface SidecarStorageItem {
+  at: { hash: string; height: string };
+  pallet: string;
+  palletIndex: string;
+  storageItem: string;
+  value: unknown;
+}
+
 /** Parsed block for display */
 export interface BlockSummary {
   number: number;
@@ -70,4 +104,51 @@ export interface BlockSummary {
   timestamp: number | null;
   authorId: string | null;
   finalized: boolean;
+}
+
+/** Extrinsic with block context for list views */
+export interface ExtrinsicSummary {
+  blockNumber: number;
+  extrinsicIndex: number;
+  method: { pallet: string; method: string };
+  signer: string | null;
+  success: boolean;
+  hash: string;
+  timestamp: number | null;
+}
+
+/** Event with block context for list views */
+export interface EventSummary {
+  blockNumber: number;
+  eventIndex: number;
+  extrinsicIndex: number | null;
+  method: { pallet: string; method: string };
+  data: unknown[];
+  timestamp: number | null;
+}
+
+/** Transfer extracted from balances.Transfer events */
+export interface TransferSummary {
+  blockNumber: number;
+  extrinsicIndex: number;
+  from: string;
+  to: string;
+  amount: string;
+  timestamp: number | null;
+  success: boolean;
+}
+
+/** Aggregated network stats for dashboard */
+export interface NetworkStats {
+  blockHeight: number;
+  finalizedHeight: number;
+  totalIssuance: string;
+  validatorCount: number;
+  peerCount: number;
+  avgBlockTime: number;
+  specVersion: string;
+  specName: string;
+  tokenSymbol: string;
+  tokenDecimals: number;
+  isSyncing: boolean;
 }

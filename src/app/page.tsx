@@ -1,5 +1,6 @@
 import { getRecentBlocks } from "@/lib/sidecar";
-import { BlockList } from "@/components/block-list";
+import { StatsCards } from "@/components/stats-cards";
+import { LatestFeed } from "@/components/latest-feed";
 import type { BlockSummary } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -7,20 +8,15 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   let blocks: BlockSummary[];
   try {
-    blocks = await getRecentBlocks(20);
+    blocks = await getRecentBlocks(10);
   } catch {
     blocks = [];
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-semibold tracking-tight">Latest Blocks</h1>
-        <p className="text-xs text-muted-foreground">
-          Real-time block production on the network
-        </p>
-      </div>
-      <BlockList initialBlocks={blocks} />
+    <div className="space-y-6">
+      <StatsCards />
+      <LatestFeed initialBlocks={blocks} />
     </div>
   );
 }

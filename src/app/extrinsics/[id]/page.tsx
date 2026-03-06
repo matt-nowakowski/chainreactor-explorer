@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBlock } from "@/lib/sidecar";
 import { formatMethod } from "@/lib/utils";
-import { CopyButton } from "@/components/copy-button";
+import { DetailRow } from "@/components/detail-row";
+import { Badge } from "@/components/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -30,17 +31,21 @@ export default async function ExtrinsicPage({
   const ext = block.extrinsics[extIndex];
   if (!ext) notFound();
 
+  // Extract fee/weight info
+  const partialFee = ext.info?.partialFee ? String(ext.info.partialFee) : null;
+  const weight = ext.info?.weight as { refTime?: string; proofSize?: string } | undefined;
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div>
         <div className="flex items-center gap-2">
-          <Link href="/" className="text-xs text-muted-foreground hover:text-foreground">
-            Blocks
+          <Link href="/extrinsics" className="text-xs text-muted-foreground hover:text-foreground">
+            Extrinsics
           </Link>
           <span className="text-xs text-muted-foreground">/</span>
           <Link href={`/blocks/${blockNum}`} className="text-xs text-muted-foreground hover:text-foreground">
-            #{blockNum.toLocaleString()}
+            Block #{blockNum.toLocaleString()}
           </Link>
           <span className="text-xs text-muted-foreground">/</span>
           <span className="text-xs font-medium">Extrinsic {extIndex}</span>
@@ -51,8 +56,12 @@ export default async function ExtrinsicPage({
       </div>
 
       {/* Details */}
-      <div className="space-y-2 rounded-lg border p-4">
-        <DetailRow label="Block" value={`#${blockNum.toLocaleString()}`} />
+      <div className="space-y-0.5 rounded-lg border p-4">
+        <DetailRow
+          label="Block"
+          value={`#${blockNum.toLocaleString()}`}
+          link={`/blocks/${blockNum}`}
+        />
         <DetailRow label="Index" value={String(extIndex)} />
         <DetailRow label="Method" value={formatMethod(ext.method.pallet, ext.method.method)} />
         <DetailRow label="Hash" value={ext.hash} mono copy />
@@ -70,6 +79,10 @@ export default async function ExtrinsicPage({
         />
         {ext.nonce && <DetailRow label="Nonce" value={ext.nonce} />}
         {ext.tip && ext.tip !== "0" && <DetailRow label="Tip" value={ext.tip} />}
+        <DetailRow label="Pays Fee" value={ext.paysFee ? "Yes" : "No"} />
+        {partialFee && <DetailRow label="Fee" value={partialFee} mono />}
+        {weight?.refTime && <DetailRow label="Weight (refTime)" value={weight.refTime} mono />}
+        {weight?.proofSize && <DetailRow label="Weight (proofSize)" value={weight.proofSize} mono />}
       </div>
 
       {/* Args */}
@@ -86,13 +99,13 @@ export default async function ExtrinsicPage({
       {ext.events.length > 0 && (
         <div className="space-y-2">
           <h2 className="text-sm font-semibold">Events ({ext.events.length})</h2>
-          <div className="overflow-hidden rounded-lg border">
+          <div className="overflow-x-auto rounded-lg border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30 text-xs text-muted-foreground">
                   <th className="px-4 py-2 text-left font-medium">#</th>
                   <th className="px-4 py-2 text-left font-medium">Method</th>
-                  <th className="px-4 py-2 text-left font-medium">Data</th>
+                  <th className="px-4 py-2 text-left font-medium hidden md:table-cell">Data</th>
                 </tr>
               </thead>
               <tbody>
@@ -100,12 +113,24 @@ export default async function ExtrinsicPage({
                   <tr key={i} className="border-b last:border-0 hover:bg-muted/20">
                     <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{i}</td>
                     <td className="px-4 py-2">
-                      <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                      <Badge variant="neutral" mono>
                         {formatMethod(event.method.pallet, event.method.method)}
-                      </span>
+                      </Badge>
                     </td>
-                    <td className="max-w-xs truncate px-4 py-2 font-mono text-xs text-muted-foreground">
-                      {event.data.length > 0 ? JSON.stringify(event.data) : "—"}
+                    <td className="px-4 py-2 hidden md:table-cell max-w-xs">
+                      {event.data.length > 0 ? (
+                        <details className="group">
+                          <summary className="cursor-pointer font-mono text-xs text-muted-foreground truncate max-w-[300px] hover:text-foreground">
+                            {JSON.stringify(event.data).slice(0, 60)}
+                            {JSON.stringify(event.data).length > 60 ? "..." : ""}
+                          </summary>
+                          <pre className="mt-1 rounded bg-muted/40 p-2 font-mono text-[10px] leading-relaxed overflow-x-auto max-h-40">
+                            {JSON.stringify(event.data, null, 2)}
+                          </pre>
+                        </details>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -114,52 +139,6 @@ export default async function ExtrinsicPage({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function DetailRow({
-  label,
-  value,
-  mono,
-  copy,
-  badge,
-  link,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  copy?: boolean;
-  badge?: "success" | "error";
-  link?: string;
-}) {
-  const content = badge ? (
-    <span
-      className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-medium ${
-        badge === "success"
-          ? "bg-emerald-500/10 text-emerald-600"
-          : "bg-red-500/10 text-red-600"
-      }`}
-    >
-      {value}
-    </span>
-  ) : link ? (
-    <Link href={link} className={`text-xs text-primary hover:underline ${mono ? "font-mono" : ""}`}>
-      {value}
-    </Link>
-  ) : (
-    <span className={`text-xs break-all ${mono ? "font-mono" : ""}`}>
-      {value}
-    </span>
-  );
-
-  return (
-    <div className="flex items-start justify-between gap-4 py-1">
-      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-0.5 text-right">
-        {content}
-        {copy && <CopyButton value={value} />}
-      </div>
     </div>
   );
 }

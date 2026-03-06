@@ -2,17 +2,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { SearchBar } from "./search-bar";
+import { ThemeToggle } from "./theme-toggle";
 
 const chainName = process.env.NEXT_PUBLIC_CHAIN_NAME || "Chain Reactor";
+
+const NAV_LINKS = [
+  { href: "/", label: "Dashboard" },
+  { href: "/blocks", label: "Blocks" },
+  { href: "/extrinsics", label: "Extrinsics" },
+  { href: "/events", label: "Events" },
+  { href: "/transfers", label: "Transfers" },
+  { href: "/validators", label: "Validators" },
+  { href: "/network", label: "Network" },
+];
 
 interface Stats {
   blockHeight: number;
   finalizedHeight: number;
-  tokenSymbol: string;
 }
 
 export function ChainHeader() {
+  const pathname = usePathname();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
@@ -20,17 +32,23 @@ export function ChainHeader() {
       try {
         const res = await fetch("/api/stats");
         if (res.ok) setStats(await res.json());
-      } catch {}
+      } catch { /* ignore */ }
     }
     fetchStats();
     const id = setInterval(fetchStats, 6000);
     return () => clearInterval(id);
   }, []);
 
+  function isActive(href: string) {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  }
+
   return (
     <header className="border-b bg-card">
+      {/* Top bar */}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
               <span className="text-xs font-bold text-primary-foreground">CR</span>
@@ -39,15 +57,15 @@ export function ChainHeader() {
           </Link>
 
           {stats && (
-            <div className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="h-3 w-px bg-border" />
               <div>
                 <span className="text-foreground/50">Height</span>{" "}
                 <span className="font-mono font-medium text-foreground">
                   {stats.blockHeight.toLocaleString()}
                 </span>
               </div>
-              <div className="h-3 w-px bg-border" />
-              <div>
+              <div className="hidden sm:block">
                 <span className="text-foreground/50">Finalized</span>{" "}
                 <span className="font-mono font-medium text-foreground">
                   {stats.finalizedHeight.toLocaleString()}
@@ -57,7 +75,29 @@ export function ChainHeader() {
           )}
         </div>
 
-        <SearchBar />
+        <div className="flex items-center gap-2">
+          <SearchBar />
+          <ThemeToggle />
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="mx-auto max-w-6xl overflow-x-auto px-4">
+        <nav className="flex items-center gap-0.5 -mb-px">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`shrink-0 border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
+                isActive(link.href)
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </header>
   );

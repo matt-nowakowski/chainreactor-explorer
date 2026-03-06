@@ -10,7 +10,7 @@ export function truncateAddress(address: string, chars: number = 6): string {
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }
 
-/** Format a balance from raw units (assumes 18 decimals by default) */
+/** Format a balance from raw units */
 export function formatBalance(raw: string, decimals: number = 18, precision: number = 4): string {
   const value = Number(raw) / Math.pow(10, decimals);
   if (value === 0) return "0";
@@ -37,4 +37,26 @@ export function timeAgo(timestampMs: number): string {
 /** Format a method as Pallet.method */
 export function formatMethod(pallet: string, method: string): string {
   return `${pallet}.${method}`;
+}
+
+/** Format a timestamp (ms) to ISO UTC string */
+export function formatTimestamp(timestampMs: number): string {
+  return new Date(timestampMs).toISOString().replace("T", " ").replace("Z", " UTC");
+}
+
+/** Format large numbers with commas */
+export function formatNumber(n: number | string): string {
+  return Number(n).toLocaleString();
+}
+
+/** Calculate average block time from an array of timestamps (ms, newest first) */
+export function calculateAvgBlockTime(timestamps: number[]): number {
+  if (timestamps.length < 2) return 6000;
+  const diffs: number[] = [];
+  for (let i = 0; i < timestamps.length - 1; i++) {
+    const diff = timestamps[i] - timestamps[i + 1];
+    if (diff > 0) diffs.push(diff);
+  }
+  if (diffs.length === 0) return 6000;
+  return diffs.reduce((a, b) => a + b, 0) / diffs.length;
 }
