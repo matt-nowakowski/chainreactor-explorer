@@ -50,12 +50,12 @@ export default function BlocksPage() {
       const data = await res.json();
       setBlocks(
         (data.blocks as IndexedBlock[]).map((b) => ({
-          number: b.number,
+          number: Number(b.number),
           hash: b.hash,
           parentHash: "",
           extrinsicCount: b.extrinsic_count,
           eventCount: b.event_count,
-          timestamp: b.timestamp,
+          timestamp: b.timestamp != null ? Number(b.timestamp) : null,
           authorId: b.author,
           finalized: true,
         }))

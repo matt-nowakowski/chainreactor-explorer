@@ -71,7 +71,7 @@ export default function TransfersPage() {
           to: t.to_address,
           amount: t.amount,
           success: t.success,
-          timestamp: t.timestamp,
+          timestamp: t.timestamp != null ? Number(t.timestamp) : null,
         }))
       );
       setTotal(data.total);

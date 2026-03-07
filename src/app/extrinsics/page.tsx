@@ -51,13 +51,13 @@ export default function ExtrinsicsPage() {
       const data = await res.json();
       setExtrinsics(
         (data.extrinsics as IndexedExtrinsic[]).map((e) => ({
-          blockNumber: e.block_number,
+          blockNumber: Number(e.block_number),
           extrinsicIndex: e.extrinsic_index,
           method: { pallet: e.pallet, method: e.method },
           signer: e.signer,
           success: e.success,
           hash: e.hash,
-          timestamp: e.timestamp,
+          timestamp: e.timestamp != null ? Number(e.timestamp) : null,
         }))
       );
       setTotal(data.total);

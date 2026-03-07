@@ -41,7 +41,9 @@ export function formatMethod(pallet: string, method: string): string {
 
 /** Format a timestamp (ms) to ISO UTC string */
 export function formatTimestamp(timestampMs: number): string {
-  return new Date(timestampMs).toISOString().replace("T", " ").replace("Z", " UTC");
+  const d = new Date(timestampMs);
+  if (isNaN(d.getTime())) return "—";
+  return d.toISOString().replace("T", " ").replace("Z", " UTC");
 }
 
 /** Format large numbers with commas */

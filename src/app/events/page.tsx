@@ -58,7 +58,7 @@ export default function EventsPage() {
           extrinsicIndex: e.extrinsic_index,
           method: { pallet: e.pallet, method: e.method },
           data: e.data ? (typeof e.data === "string" ? JSON.parse(e.data) : e.data) : [],
-          timestamp: e.timestamp,
+          timestamp: e.timestamp != null ? Number(e.timestamp) : null,
         }))
       );
       setTotal(data.total);
