@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 export function ChainHero() {
   const [query, setQuery] = useState("");
-  const [chainName, setChainName] = useState("Explorer");
+  const [chainName, setChainName] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -57,7 +57,11 @@ export function ChainHero() {
 
   return (
     <div className="rounded-xl bg-gradient-to-br from-blue-500/10 via-blue-400/5 to-transparent px-8 py-8 dark:from-blue-500/20 dark:via-blue-500/5">
-      <h1 className="text-2xl font-bold">{chainName} Explorer</h1>
+      {chainName ? (
+        <h1 className="text-2xl font-bold">{chainName} Explorer</h1>
+      ) : (
+        <div className="h-8 w-48 rounded bg-muted/50 animate-pulse" />
+      )}
       <p className="mt-1 text-sm text-muted-foreground">
         Blockchain explorer and analytics platform
       </p>

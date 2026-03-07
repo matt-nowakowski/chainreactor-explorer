@@ -49,8 +49,8 @@ export function Sidebar() {
     return () => clearInterval(id);
   }, []);
 
-  const chainName = stats?.chainName || "Explorer";
-  const initials = chainName.slice(0, 2).toUpperCase();
+  const chainName = stats?.chainName;
+  const initials = chainName ? chainName.slice(0, 2).toUpperCase() : "";
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -64,12 +64,21 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <span className="text-xs font-bold text-primary-foreground">{initials}</span>
-        </div>
-        <span className="font-[family-name:var(--font-sans)] text-[15px] font-[900] italic uppercase tracking-[-0.02em]">
-          {chainName}
-        </span>
+        {chainName ? (
+          <>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <span className="text-xs font-bold text-primary-foreground">{initials}</span>
+            </div>
+            <span className="font-[family-name:var(--font-sans)] text-[15px] font-[900] italic uppercase tracking-[-0.02em]">
+              {chainName}
+            </span>
+          </>
+        ) : (
+          <>
+            <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
+            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+          </>
+        )}
       </div>
 
       {/* Navigation */}
