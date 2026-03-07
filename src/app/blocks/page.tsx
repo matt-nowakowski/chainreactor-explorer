@@ -36,7 +36,7 @@ export default function BlocksPage() {
   useEffect(() => {
     fetch("/api/indexer/status")
       .then((r) => r.ok ? r.json() : null)
-      .then((data) => setUseIndexer(data && !data.error))
+      .then((data) => setUseIndexer(data != null && !data.error))
       .catch(() => setUseIndexer(false));
   }, []);
 
