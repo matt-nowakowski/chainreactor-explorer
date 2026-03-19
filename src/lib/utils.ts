@@ -11,7 +11,7 @@ export function truncateAddress(address: string, chars: number = 6): string {
 }
 
 /** Format a balance from raw units */
-export function formatBalance(raw: string, decimals: number = 18, precision: number = 4): string {
+export function formatBalance(raw: string, decimals: number = 10, precision: number = 4): string {
   const value = Number(raw) / Math.pow(10, decimals);
   if (value === 0) return "0";
   if (value < 0.0001) return "< 0.0001";
